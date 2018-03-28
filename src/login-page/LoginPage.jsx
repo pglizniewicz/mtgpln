@@ -36,7 +36,7 @@ export default class LoginPage extends Component {
     }
 
     async componentDidMount() {
-        const json = await fetch('http://api.nbp.pl/api/exchangerates/tables/A/?format=JSON')
+        const json = await fetch('https://api.nbp.pl/api/exchangerates/tables/A/?format=JSON')
             .then(response => response.json());
         this.setState({
             euro: json
