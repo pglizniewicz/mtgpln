@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 
-@connect(s => s)
 export default class LoginPage extends Component {
 
     state = {
@@ -25,18 +24,6 @@ export default class LoginPage extends Component {
 
             </div>
         )
-    }
-
-    addTodo = () => {
-        const { todos } = this.props;
-
-        const todo = {
-            name: `todo-${todos.length + 1}`
-        }
-        this.props.dispatch({
-            type: 'add-todo',
-            payload: todo
-        })
     }
 
     findEuro = () => {
