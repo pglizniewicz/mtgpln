@@ -1,6 +1,7 @@
 // @flow
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import AutocompletableInput from './AutocompletableInput';
+import CardsService from '../CardsService'
 
 interface CardName {
     name: string
@@ -44,17 +45,17 @@ export default class LoginPage extends Component<void, State> {
 
     render() {
         const euroRate = this.findEuro();
-        const {foundCardNames} = this.state;
-        const {foundCards} = this.state;
+        const { foundCardNames } = this.state;
+        const { foundCards } = this.state;
         return (
-            <div className="container-fluid" style={{padding: 10}}>
+            <div className="container-fluid" style={{ padding: 10 }}>
                 <div className="row">
                     <div className="col-sm">
                         <div className="input-group mb-3">
                             <AutocompletableInput
                                 onDataRequest={this.fetchHints}
                                 value={this.state.cardName}
-                                onInput={value => this.setState({cardName: value})}/>
+                                onInput={value => this.setState({ cardName: value })} />
                             <div className="input-group-append">
                                 <button onClick={this.findCards} className="btn" type="button">Szukaj</button>
                             </div>
@@ -71,7 +72,7 @@ export default class LoginPage extends Component<void, State> {
                                 {
                                     this.state.foundCardNames.data.map((card, i) => {
                                         return <li onClick={() => this.searchCards(card.name)}
-                                                   className="list-group-item" key={i}>{card.name || ''}</li>
+                                            className="list-group-item" key={i}>{card.name || ''}</li>
                                     })
                                 }
                             </ul>
@@ -88,7 +89,20 @@ export default class LoginPage extends Component<void, State> {
                             <ul className="list-group">
                                 {
                                     this.state.foundCards.data.map((print, i) => {
-                                        return <li className="list-group-item" key={i}>{print.set} {(print.eur * euroRate.mid).toFixed(2)} PLN</li>
+                                        return <li className="list-group-item" key={i}>
+                                            <span className="badge badge-primary">
+                                                {print.set}
+                                            </span>
+                                            &nbsp;
+                                            {print.eur ?
+                                                <span>
+                                                    {this.computePrice(print).toFixed(2)} PLN
+                                                    </span> :
+                                                <span className="badge badge-secondary">
+                                                    Brak kursu w euro
+                                                </span>}
+
+                                        </li>
                                     })
                                 }
                             </ul>
@@ -101,8 +115,8 @@ export default class LoginPage extends Component<void, State> {
                         this.state.chosen &&
                         <ul>
                             {
-                                this.state.chosen.map(print => {
-                                    return <li>{print.set} {(print.eur * euroRate.mid).toFixed(2)} PLN</li>
+                                this.state.chosen.map(offer => {
+                                    return <li>{offer.set} {this.computePrice(offer.eur).toFixed(2)} PLN</li>
                                 })
                             }
                         </ul>
@@ -124,6 +138,12 @@ export default class LoginPage extends Component<void, State> {
         )
     }
 
+    computePrice = (offer: any): number => {
+        const euroRate = this.findEuro();
+        const offerPrice = parseFloat(offer.eur);
+        return offerPrice * euroRate.mid;
+    }
+
     searchCards = (cardName: string) => {
         this.setState({
             foundCardNames: {
@@ -132,20 +152,23 @@ export default class LoginPage extends Component<void, State> {
             },
             cardName
         });
-        this.findCards();
+        this._findCards(cardName);
     }
 
     findCards = async () => {
-        const json = await fetch('https://api.scryfall.com/cards/search?&q=!' + this.state.cardName + '&unique=prints&order=set&dir=desc')
-            .then(response => response.json());
+        return this._findCards(this.state.cardName)
+    };
 
+
+    _findCards = async (cardName: string) => {
+        const json = await CardsService.fetchCards(cardName);
         this.setState({
             foundCards: json
         })
     };
 
     findEuro = () => {
-        const {euro} = this.state;
+        const { euro } = this.state;
         if (euro.length === 0)
             return undefined;
 
@@ -154,7 +177,7 @@ export default class LoginPage extends Component<void, State> {
     };
 
     fetchHints = async () => {
-        const {cardName} = this.state;
+        const { cardName } = this.state;
         if (!cardName || cardName.trim() === '') {
             this.setState({
                 foundCardNames: {
@@ -165,11 +188,13 @@ export default class LoginPage extends Component<void, State> {
             return
         }
         try {
-            const json = await fetch(`https://api.scryfall.com/cards/search?q=name:/^${cardName}/`)
-                .then(response => response.json());
-            this.setState({
-                foundCardNames: json
-            });
+            const response = await fetch(`https://api.scryfall.com/cards/search?q=name:/^${encodeURI(cardName)}/`);
+            if (response.ok) {
+                const json = await response.json();
+                this.setState({
+                    foundCardNames: json
+                });
+            }
         }
         catch (err) {
             console.log('no cards found')
