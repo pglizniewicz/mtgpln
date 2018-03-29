@@ -47,23 +47,15 @@ export default class LoginPage extends Component<void, State> {
         const { foundCardNames } = this.state;
         return (
             <div className="container-fluid" style={{ padding: 10 }}>
-                {/* Kurs EUR/PLN */
-                    euroRate &&
-                    <div>
-                        <p>
-                            Średni kurs EUR/PLN NBP {euroRate.mid}
-                        </p>
-                    </div>
-                }
                 <div className="row">
                     <div className="col-sm">
-                        <div class="input-group mb-3">
+                        <div className="input-group mb-3">
                             <AutocompletableInput
                                 onDataRequest={this.fetchHints}
                                 value={this.state.cardName}
                                 onInput={value => this.setState({ cardName: value })} />
-                            <div class="input-group-append">
-                                <button onClick={this.findCards} class="btn" type="button">Szukaj</button>
+                            <div className="input-group-append">
+                                <button onClick={this.findCards} className="btn" type="button">Szukaj</button>
                             </div>
                         </div>
                     </div>
@@ -110,7 +102,16 @@ export default class LoginPage extends Component<void, State> {
                             }
                         </ul>
                     }
-
+                </div>
+                <div>
+                    {/* Kurs EUR/PLN */
+                        euroRate &&
+                        <div>
+                            <p>
+                                Średni kurs EUR/PLN NBP {euroRate.mid}
+                            </p>
+                        </div>
+                    }
 
                 </div>
 
@@ -149,8 +150,17 @@ export default class LoginPage extends Component<void, State> {
 
     fetchHints = async () => {
         const { cardName } = this.state;
+        if(!cardName || cardName.trim() === ''){
+            this.setState({
+                foundCardNames: {
+                    data: [],
+                    total_cards: 0
+                }
+            });
+            return
+        }
         try {
-            const json = await fetch(`https://api.scryfall.com/cards/search?q=${cardName}`)
+            const json = await fetch(`https://api.scryfall.com/cards/search?q=name:/^${cardName}/`)
                 .then(response => response.json());
             this.setState({
                 foundCardNames: json
