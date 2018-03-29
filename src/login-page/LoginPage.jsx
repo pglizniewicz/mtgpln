@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react'
 import AutocompletableInput from './AutocompletableInput';
+import CardsService from '../CardsService'
 
 interface CardName {
     name: string
@@ -88,7 +89,20 @@ export default class LoginPage extends Component<void, State> {
                             <ul className="list-group">
                                 {
                                     this.state.foundCards.data.map((print, i) => {
-                                        return <li className="list-group-item" key={i}>{print.set} {(print.eur * euroRate.mid).toFixed(2)} PLN</li>
+                                        return <li className="list-group-item" key={i}>
+                                            <span className="badge badge-primary">
+                                                {print.set}
+                                            </span>
+                                            &nbsp;
+                                            {print.eur ?
+                                                <span>
+                                                    {this.computePrice(print).toFixed(2)} PLN
+                                                    </span> :
+                                                <span className="badge badge-secondary">
+                                                    Brak kursu w euro
+                                                </span>}
+
+                                        </li>
                                     })
                                 }
                             </ul>
@@ -101,8 +115,8 @@ export default class LoginPage extends Component<void, State> {
                         this.state.chosen &&
                         <ul>
                             {
-                                this.state.chosen.map(print => {
-                                    return <li>{print.set} {(print.eur * euroRate.mid).toFixed(2)} PLN</li>
+                                this.state.chosen.map(offer => {
+                                    return <li>{offer.set} {this.computePrice(offer.eur).toFixed(2)} PLN</li>
                                 })
                             }
                         </ul>
@@ -124,6 +138,14 @@ export default class LoginPage extends Component<void, State> {
         )
     }
 
+    computePrice = (offer: any): number => {
+        const euroRate = this.findEuro();
+        console.log(offer)
+        const offerPrice = parseFloat(offer.eur);
+        console.log(offerPrice)
+        return offerPrice * euroRate.mid;
+    }
+
     searchCards = (cardName: string) => {
         this.setState({
             foundCardNames: {
@@ -141,9 +163,7 @@ export default class LoginPage extends Component<void, State> {
 
 
     _findCards = async (cardName: string) => {
-        const json = await fetch(`https://api.scryfall.com/cards/search?q=!${encodeURI(cardName)}&unique=prints&order=set&dir=desc`)
-            .then(response => response.json());
-
+        const json = await CardsService.fetchCards(cardName);
         this.setState({
             foundCards: json
         })
@@ -170,11 +190,13 @@ export default class LoginPage extends Component<void, State> {
             return
         }
         try {
-            const json = await fetch(`https://api.scryfall.com/cards/search?q=name:/^${encodeURI(cardName)}/`)
-                .then(response => response.json());
-            this.setState({
-                foundCardNames: json
-            });
+            const response = await fetch(`https://api.scryfall.com/cards/search?q=name:/^${encodeURI(cardName)}/`);
+            if (response.ok) {
+                const json = await response.json();
+                this.setState({
+                    foundCardNames: json
+                });
+            }
         }
         catch (err) {
             console.log('no cards found')
