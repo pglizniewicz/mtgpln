@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import AutocompletableInput from './AutocompletableInput';
 
 interface CardName {
@@ -44,16 +44,17 @@ export default class LoginPage extends Component<void, State> {
 
     render() {
         const euroRate = this.findEuro();
-        const { foundCardNames } = this.state;
+        const {foundCardNames} = this.state;
+        const {foundCards} = this.state;
         return (
-            <div className="container-fluid" style={{ padding: 10 }}>
+            <div className="container-fluid" style={{padding: 10}}>
                 <div className="row">
                     <div className="col-sm">
                         <div className="input-group mb-3">
                             <AutocompletableInput
                                 onDataRequest={this.fetchHints}
                                 value={this.state.cardName}
-                                onInput={value => this.setState({ cardName: value })} />
+                                onInput={value => this.setState({cardName: value})}/>
                             <div className="input-group-append">
                                 <button onClick={this.findCards} className="btn" type="button">Szukaj</button>
                             </div>
@@ -65,11 +66,12 @@ export default class LoginPage extends Component<void, State> {
                     {
                         foundCardNames.data.length > 0 &&
                         <div>
-                            <h4>Znalezionych kart: {foundCardNames.total_cards}</h4>
+                            <h4>Może szukasz: {foundCardNames.total_cards}</h4>
                             <ul className="list-group">
                                 {
                                     this.state.foundCardNames.data.map((card, i) => {
-                                        return <li onClick={() => this.searchCards(card.name)} className="list-group-item" key={i}>{card.name || ''}</li>// onClick ustaw this.state.cardName i odpal szukajkę
+                                        return <li onClick={() => this.searchCards(card.name)}
+                                                   className="list-group-item" key={i}>{card.name || ''}</li>
                                     })
                                 }
                             </ul>
@@ -81,13 +83,16 @@ export default class LoginPage extends Component<void, State> {
 
                     {/* Wyniki wyszukiwania */
                         this.state.foundCards.data &&
-                        <ul>
-                            {
-                                this.state.foundCards.data.map((print, i) => {
-                                    return <li key={i}>{print.set} {(print.eur * euroRate.mid).toFixed(2)} PLN</li>
-                                })
-                            }
-                        </ul>
+                        <div>
+                            <h4>Znalezionych wydań: {foundCards.total_cards}</h4>
+                            <ul className="list-group">
+                                {
+                                    this.state.foundCards.data.map((print, i) => {
+                                        return <li className="list-group-item" key={i}>{print.set} {(print.eur * euroRate.mid).toFixed(2)} PLN</li>
+                                    })
+                                }
+                            </ul>
+                        </div>
                     }
                 </div>
 
@@ -140,7 +145,7 @@ export default class LoginPage extends Component<void, State> {
     };
 
     findEuro = () => {
-        const { euro } = this.state;
+        const {euro} = this.state;
         if (euro.length === 0)
             return undefined;
 
@@ -149,8 +154,8 @@ export default class LoginPage extends Component<void, State> {
     };
 
     fetchHints = async () => {
-        const { cardName } = this.state;
-        if(!cardName || cardName.trim() === ''){
+        const {cardName} = this.state;
+        if (!cardName || cardName.trim() === '') {
             this.setState({
                 foundCardNames: {
                     data: [],
