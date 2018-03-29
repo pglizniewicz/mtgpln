@@ -12,7 +12,17 @@ interface CardHints {
     total_cards: number
 }
 
+interface EuroRate {
+    mid: number
+}
+
+interface Pricing {
+    set: string,
+    eur: number
+}
+
 type State = {
+    chosen: Array<Pricing>,
     cardName: string,
     euro: any,
     foundCardNames: CardHints,
@@ -139,10 +149,10 @@ export default class LoginPage extends Component<void, State> {
         })
     };
 
-    findEuro = () => {
+    findEuro = (): EuroRate => {
         const { euro } = this.state;
         if (euro.length === 0)
-            return undefined;
+            return { mid: NaN };
 
         return euro[0].rates.find(rate => rate.code === 'EUR');
 
