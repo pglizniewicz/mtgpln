@@ -21,11 +21,11 @@ class AutocompletableInput extends Component {
 
     handleInput = (value) => {
         const sequence = this.state.sequenceNumber + 1;
-        this.setState({ duringInput: true, sequenceNumber: sequence })
+        this.setState({ duringInput: true, sequenceNumber: sequence });
         this.props.onInput(value);
         setTimeout(() => {
             if (this.state.sequenceNumber === sequence) {
-                this.setState({ duringInput: false })
+                this.setState({ duringInput: false });
                 this.props.onDataRequest()
             }
         }, 250)

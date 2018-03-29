@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 import AutocompletableInput from './AutocompletableInput';
 
 interface CardName {
@@ -69,7 +68,7 @@ export default class LoginPage extends Component<void, State> {
                 </div>
 
                 <div>
-                    {/* Podpowiedzi wyszukiwania TODO: debounce */
+                    {/* Podpowiedzi wyszukiwania */
                         this.state.foundCardNames.data &&
                         <h1>{foundCardNames.total_cards}</h1>
                     }
