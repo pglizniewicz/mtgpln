@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux';
 
-@connect(s => s)
 export default class LoginPage extends Component {
 
     state = {
@@ -105,7 +104,7 @@ export default class LoginPage extends Component {
     };
 
     async componentDidMount() {
-        const json = await fetch('http://api.nbp.pl/api/exchangerates/tables/A/?format=JSON')
+        const json = await fetch('https://api.nbp.pl/api/exchangerates/tables/A/?format=JSON')
             .then(response => response.json());
         this.setState({
             euro: json
