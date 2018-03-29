@@ -13,8 +13,7 @@ class AutocompletableInput extends Component {
         const { duringInput } = this.state;
         return (
             <div>
-                <input value={value} onChange={e => this.handleInput(e.target.value)} />
-                <span>{duringInput && 'input'}</span>
+                <input value={value} onChange={e => this.handleInput(e.target.value)} type="text" class="form-control" placeholder="Nazwa karty" />
             </div>
         )
     }
