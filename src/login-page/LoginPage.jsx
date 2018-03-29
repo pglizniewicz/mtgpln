@@ -46,32 +46,46 @@ export default class LoginPage extends Component<void, State> {
         const euroRate = this.findEuro();
         const { foundCardNames } = this.state;
         return (
-            <div>
-                <div style={{ flexDirection: 'row' }}>
-                    <AutocompletableInput
-                        onDataRequest={this.fetchHints}
-                        value={this.state.cardName}
-                        onInput={value => this.setState({ cardName: value })} />
-                    <button onClick={this.findCards}>Szukaj</button>
+            <div className="container-fluid" style={{ padding: 10 }}>
+                {/* Kurs EUR/PLN */
+                    euroRate &&
+                    <div>
+                        <p>
+                            Średni kurs EUR/PLN NBP {euroRate.mid}
+                        </p>
+                    </div>
+                }
+                <div className="row">
+                    <div className="col-sm">
+                        <div class="input-group mb-3">
+                            <AutocompletableInput
+                                onDataRequest={this.fetchHints}
+                                value={this.state.cardName}
+                                onInput={value => this.setState({ cardName: value })} />
+                            <div class="input-group-append">
+                                <button onClick={this.findCards} class="btn" type="button">Szukaj</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div>
                     {
-                        foundCardNames.data &&
-                        <ul>
-                            {
-                                this.state.foundCardNames.data.map((card, i) => {
-                                    return <li key={i}>{card.name || ''}</li>// onClick ustaw this.state.cardName i odpal szukajkę
-                                })
-                            }
-                        </ul>
+                        foundCardNames.data.length > 0 &&
+                        <div>
+                            <h4>Znalezionych kart: {foundCardNames.total_cards}</h4>
+                            <ul className="list-group">
+                                {
+                                    this.state.foundCardNames.data.map((card, i) => {
+                                        return <li onClick={() => this.searchCards(card.name)} className="list-group-item" key={i}>{card.name || ''}</li>// onClick ustaw this.state.cardName i odpal szukajkę
+                                    })
+                                }
+                            </ul>
+                        </div>
                     }
                 </div>
 
                 <div>
-                    {/* Podpowiedzi wyszukiwania */
-                        this.state.foundCardNames.data &&
-                        <h1>{foundCardNames.total_cards}</h1>
-                    }
 
                     {/* Wyniki wyszukiwania */
                         this.state.foundCards.data &&
@@ -97,21 +111,25 @@ export default class LoginPage extends Component<void, State> {
                         </ul>
                     }
 
-                    {/* Kurs EUR/PLN */
-                        euroRate &&
-                        <div>
-                            <p>
-                                Średni kurs EUR/PLN NBP {euroRate.mid}
-                            </p>
-                        </div>
-                    }
+
                 </div>
 
             </div>
         )
     }
 
-    findCards = async (event: any) => {
+    searchCards = (cardName: string) => {
+        this.setState({
+            foundCardNames: {
+                data: [],
+                total_cards: 0
+            },
+            cardName
+        });
+        this.findCards();
+    }
+
+    findCards = async () => {
         const json = await fetch('https://api.scryfall.com/cards/search?&q=!' + this.state.cardName + '&unique=prints&order=set&dir=desc')
             .then(response => response.json());
 
