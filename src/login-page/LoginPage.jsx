@@ -26,7 +26,10 @@ type State = {
     cardName: string,
     euro: any,
     foundCardNames: CardHints,
-    foundCards: any
+    foundCards: {
+        data: Array<any>,
+        total_cards: number
+    }
 }
 
 interface Cards {
@@ -38,17 +41,20 @@ interface Card {
     eur: string
 }
 
+const EMPTY_CARDS = {
+    data: [],
+    total_cards: 0
+};
+const EMPTY_NAMES = {
+    data: [],
+    total_cards: 0
+};
 export default class LoginPage extends Component<void, State> {
 
     state = {
         euro: [],
-        foundCards: {
-            data: [],
-        },
-        foundCardNames: {
-            data: [],
-            total_cards: 0
-        },
+        foundCards: EMPTY_CARDS,
+        foundCardNames: EMPTY_NAMES,
         chosen: [],
         cardName: ""
     }
