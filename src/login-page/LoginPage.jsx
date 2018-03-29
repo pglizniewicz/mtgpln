@@ -140,9 +140,7 @@ export default class LoginPage extends Component<void, State> {
 
     computePrice = (offer: any): number => {
         const euroRate = this.findEuro();
-        console.log(offer)
         const offerPrice = parseFloat(offer.eur);
-        console.log(offerPrice)
         return offerPrice * euroRate.mid;
     }
 
