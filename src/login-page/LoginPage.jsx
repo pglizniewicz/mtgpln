@@ -81,7 +81,7 @@ export default class LoginPage extends Component<void, State> {
 
                 <div>
 
-                    {/* Wyniki wyszukiwania */
+                    {/* Wyniki wyszukiwania. TODO: dodać jakąś metodę czyszczenia wyników.*/
                         this.state.foundCards.data &&
                         <div>
                             <h4>Znalezionych wydań: {foundCards.total_cards}</h4>
@@ -136,7 +136,14 @@ export default class LoginPage extends Component<void, State> {
     }
 
     findCards = async () => {
-        const json = await fetch('https://api.scryfall.com/cards/search?&q=!' + this.state.cardName + '&unique=prints&order=set&dir=desc')
+        function today() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        const json = await fetch('https://api.scryfall.com/cards/search?&q=!"' + this.state.cardName +'" st=booster game:paper date<=' + today() +
+            '&unique=prints' +
+            '&order=set' +
+            '&dir=desc')
             .then(response => response.json());
 
         this.setState({
